@@ -42,6 +42,25 @@ export const Profile = () => {
         </div>
       </div>
 
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-semibold text-gray-900">My Tools</h3>
+          <button 
+            onClick={() => navigate('/add-item')}
+            className="text-primary text-sm font-medium hover:text-primary-hover flex items-center"
+          >
+            + Add Tool
+          </button>
+        </div>
+        <p className="text-sm text-gray-500 mb-2">You can manage your tools directly from the Catalog.</p>
+        <button 
+          onClick={() => navigate('/catalog')}
+          className="w-full bg-gray-50 text-gray-700 py-2 rounded-md text-sm font-medium border border-gray-200"
+        >
+          View Catalog
+        </button>
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-4">
         <h3 className="font-semibold text-gray-900 border-b border-gray-100 pb-2">Account Settings</h3>
         

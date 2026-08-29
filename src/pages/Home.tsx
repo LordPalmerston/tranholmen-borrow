@@ -27,7 +27,7 @@ export const Home = () => {
           </div>
           <span className="font-semibold text-gray-900 text-sm">Borrow</span>
         </Link>
-        <Link to="/profile" className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+        <Link to="/add-item" className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
           <div className="bg-green-50 p-3 rounded-full mb-3 text-green-600">
             <PlusCircle size={24} />
           </div>
