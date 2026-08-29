@@ -34,7 +34,7 @@ export const Home = () => {
         
         ownerSnap.forEach(d => {
           const data = d.data();
-          if (data.status === 'pending') {
+          if (data.status === 'pending' || data.status === 'active') {
             allTx.push({ id: d.id, role: 'owner', ...data });
           }
         });
@@ -67,7 +67,9 @@ export const Home = () => {
             <div key={tx.id} className="bg-white p-4 rounded-xl shadow-sm border border-orange-100 flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-gray-900 truncate">
-                  {tx.role === 'owner' ? `Request for ${tx.item?.title || 'Item'}` : `Borrowing ${tx.item?.title || 'Item'}`}
+                  {tx.role === 'owner' 
+                    ? (tx.status === 'pending' ? `Request for ${tx.item?.title || 'Item'}` : `Lending ${tx.item?.title || 'Item'}`)
+                    : `Borrowing ${tx.item?.title || 'Item'}`}
                 </p>
                 <p className="text-xs text-orange-600 font-medium capitalize">{tx.status}</p>
               </div>
