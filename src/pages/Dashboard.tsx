@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { Check, MapPin, Camera, Clock } from 'lucide-react';
+import { Check, MapPin, Camera, Clock, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const Dashboard = () => {
@@ -138,6 +138,12 @@ export const Dashboard = () => {
               {/* LENDING VIEW */}
               {activeTab === 'lending' && tx.status === 'pending' && (
                 <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={() => navigate(`/chat/${tx.id}`)}
+                    className="flex items-center justify-center w-full bg-blue-50 text-blue-700 py-2 rounded-md font-medium text-sm hover:bg-blue-100 transition-colors"
+                  >
+                    <MessageCircle size={16} className="mr-1" /> Message
+                  </button>
                   <button 
                     onClick={() => handleApprove(tx.id, tx.item_id)}
                     className="flex-1 bg-primary text-white py-2 rounded-md text-sm font-medium flex justify-center items-center"
@@ -158,6 +164,12 @@ export const Dashboard = () => {
                     </div>
                   </div>
                   <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={() => navigate(`/chat/${tx.id}`)}
+                      className="flex items-center justify-center w-full bg-blue-50 text-blue-700 py-2 rounded-md font-medium text-sm hover:bg-blue-100 transition-colors"
+                    >
+                      <MessageCircle size={16} className="mr-1" /> Message
+                    </button>
                     <button 
                       onClick={() => handleStartBorrow(tx.id)}
                       className="flex-1 bg-blue-600 text-white py-2 rounded-md text-sm font-medium"
@@ -174,12 +186,20 @@ export const Dashboard = () => {
                     <Clock size={16} className="mr-2" />
                     <span className="text-sm font-medium">Active Loan</span>
                   </div>
-                  <button 
-                    onClick={() => navigate(`/return/${tx.id}`)}
-                    className="w-full bg-gray-900 text-white py-2 rounded-md text-sm font-medium flex justify-center items-center"
-                  >
-                    <Camera size={16} className="mr-2" /> Return Item
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate(`/chat/${tx.id}`)}
+                      className="flex items-center justify-center w-full bg-blue-50 text-blue-700 py-2 rounded-md font-medium text-sm hover:bg-blue-100 transition-colors"
+                    >
+                      <MessageCircle size={16} className="mr-1" /> Message
+                    </button>
+                    <button 
+                      onClick={() => navigate(`/return/${tx.id}`)}
+                      className="flex items-center justify-center w-full bg-primary text-white py-2 rounded-md font-medium text-sm hover:bg-primary-hover transition-colors"
+                    >
+                      <Camera size={16} className="mr-1" /> Return Item
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

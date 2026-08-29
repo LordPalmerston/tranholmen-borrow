@@ -1,10 +1,95 @@
-import { Link } from 'react-router-dom';
-import { Search, PlusCircle, ShieldCheck } from 'lucide-react';
-
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, PlusCircle, ShieldCheck, ArrowRight, MessageCircle } from 'lucide-react';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Home = () => {
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const [activeLoans, setActiveLoans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchActiveLoans = async () => {
+      if (!currentUser) return;
+      try {
+        // Fetch where user is borrower (active) or owner (pending)
+        // Since we can't easily do OR queries across different fields in one go without complex indexes,
+        // we'll fetch both and combine.
+        const borrowerQ = query(collection(db, 'transactions'), where('borrower_id', '==', currentUser.uid));
+        const ownerQ = query(collection(db, 'transactions'), where('owner_id', '==', currentUser.uid));
+        
+        const [borrowerSnap, ownerSnap] = await Promise.all([getDocs(borrowerQ), getDocs(ownerQ)]);
+        
+        const allTx: any[] = [];
+        
+        borrowerSnap.forEach(d => {
+          const data = d.data();
+          if (data.status === 'active' || data.status === 'pending') {
+            allTx.push({ id: d.id, role: 'borrower', ...data });
+          }
+        });
+        
+        ownerSnap.forEach(d => {
+          const data = d.data();
+          if (data.status === 'pending') {
+            allTx.push({ id: d.id, role: 'owner', ...data });
+          }
+        });
+
+        // Fetch item details for these transactions
+        for (let tx of allTx) {
+          const itemDoc = await getDocs(query(collection(db, 'items'), where('__name__', '==', tx.item_id)));
+          if (!itemDoc.empty) {
+            tx.item = { id: itemDoc.docs[0].id, ...itemDoc.docs[0].data() };
+          }
+        }
+
+        setActiveLoans(allTx);
+      } catch (error) {
+        console.error("Error fetching loans for home:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchActiveLoans();
+  }, [currentUser]);
+
   return (
     <div className="flex flex-col space-y-6 pt-4 pb-8">
+      {/* Active Widgets */}
+      {!loading && activeLoans.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="font-bold text-gray-900 text-lg">Action Required</h2>
+          {activeLoans.map(tx => (
+            <div key={tx.id} className="bg-white p-4 rounded-xl shadow-sm border border-orange-100 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-900 truncate">
+                  {tx.role === 'owner' ? `Request for ${tx.item?.title || 'Item'}` : `Borrowing ${tx.item?.title || 'Item'}`}
+                </p>
+                <p className="text-xs text-orange-600 font-medium capitalize">{tx.status}</p>
+              </div>
+              <div className="flex space-x-2 shrink-0">
+                <button 
+                  onClick={() => navigate(`/chat/${tx.id}`)}
+                  className="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100"
+                >
+                  <MessageCircle size={18} />
+                </button>
+                <button 
+                  onClick={() => navigate('/dashboard')}
+                  className="p-2 bg-gray-50 text-gray-600 rounded-full hover:bg-gray-100"
+                >
+                  <ArrowRight size={18} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Hero Section */}
       <div className="bg-primary rounded-2xl p-6 text-white shadow-sm relative overflow-hidden">
         <div className="relative z-10">
