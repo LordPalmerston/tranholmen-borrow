@@ -163,6 +163,28 @@ export const Dashboard = () => {
                 </div>
               )}
 
+              {activeTab === 'lending' && (tx.status === 'approved' || tx.status === 'active') && (
+                <div className="mt-4 border-t border-gray-100 pt-3">
+                  <div className="flex items-center text-orange-600 mb-3 bg-orange-50 p-2 rounded">
+                    <Clock size={16} className="mr-2" />
+                    <span className="text-sm font-medium">
+                      {tx.status === 'approved' ? 'Waiting for pickup' : 'Currently loaned out'}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate(`/chat/${tx.id}`)}
+                      className="relative flex items-center justify-center w-full bg-blue-50 text-blue-700 py-2 rounded-md font-medium text-sm hover:bg-blue-100 transition-colors"
+                    >
+                      <MessageCircle size={16} className="mr-1" /> Message
+                      {hasUnread(tx) && (
+                        <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* BORROWING VIEW */}
               {activeTab === 'borrowing' && tx.status === 'approved' && (
                 <div className="mt-4 bg-gray-50 p-3 rounded-md border border-gray-100">
