@@ -27,7 +27,8 @@ service cloud.firestore {
       // Anyone can read a user document EXCEPT the street_address field, which needs careful handling.
       // Firestore rules don't support field-level read exclusions easily in list queries, 
       // but we can allow reading the whole doc if authorized.
-      allow read: if isAuthenticated(); // We'll handle field-level masking in the frontend or rewrite this.
+      allow read: if isAuthenticated(); 
+      allow create, update: if isAuthenticated() && request.auth.uid == userId;
       
       // Better approach for street_address masking:
       // Store public user data in /users/{userId}
