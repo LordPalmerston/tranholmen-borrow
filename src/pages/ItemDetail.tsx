@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { sendEmailNotification } from '../lib/notifications';
 import { MapPin, ArrowLeft, Info } from 'lucide-react';
 
 export const ItemDetail = () => {
@@ -52,6 +53,35 @@ export const ItemDetail = () => {
         created_at: serverTimestamp()
       });
       
+      // Fetch owner details to send email notification
+      try {
+        const ownerDoc = await getDoc(doc(db, 'users', item.owner_id));
+        if (ownerDoc.exists()) {
+          const ownerData = ownerDoc.data();
+          await sendEmailNotification(
+            ownerData.email,
+            ownerData.first_name,
+            `New borrow request for your ${item.title}!`,
+            `
+              <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto;">
+                <h2>Hi ${ownerData.first_name},</h2>
+                <p><strong>${userProfile?.first_name} ${userProfile?.last_name}</strong> has requested to borrow your <strong>${item.title}</strong>.</p>
+                <p style="background-color: #f3f4f6; padding: 12px; border-radius: 6px;">
+                  <strong>Their project:</strong><br/>
+                  ${projectDescription}
+                </p>
+                <p>Log in to the Tranholmen Tool Library to approve the request and arrange a pickup.</p>
+                <br/>
+                <a href="${window.location.origin}/dashboard" style="background-color: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">View Request</a>
+              </div>
+            `
+          );
+        }
+      } catch (emailErr) {
+        console.error("Failed to send notification email:", emailErr);
+      }
+
+      setShowModal(false);
       // Navigate to dashboard
       navigate('/dashboard');
     } catch (error) {
