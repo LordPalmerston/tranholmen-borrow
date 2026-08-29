@@ -120,78 +120,68 @@ export const ItemDetail = () => {
 
       {/* Request Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowModal(false)} />
-            
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-            
-            <div className="inline-block align-bottom bg-white rounded-t-xl sm:rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle w-full sm:max-w-lg">
-              <form onSubmit={handleRequest} className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                    <h3 className="text-lg leading-6 font-bold text-gray-900 mb-4">Request to Borrow</h3>
-                    
-                    <div className="bg-blue-50 p-3 rounded-md flex items-start mb-4">
-                      <Info className="text-blue-500 mt-0.5 mr-2 shrink-0" size={16} />
-                      <p className="text-xs text-blue-700">
-                        Most neighbors respond within a few hours. The owner's exact address will be shared with you if they approve.
-                      </p>
-                    </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden relative">
+            <form onSubmit={handleRequest} className="p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Request to Borrow</h3>
+              
+              <div className="bg-blue-50 p-3 rounded-md flex items-start mb-4">
+                <Info className="text-blue-500 mt-0.5 mr-2 shrink-0" size={16} />
+                <p className="text-xs text-blue-700">
+                  Most neighbors respond within a few hours. The owner's exact address will be shared with you if they approve.
+                </p>
+              </div>
 
-                    <div className="mt-2 space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">What's your project?</label>
-                        <textarea
-                          required
-                          rows={3}
-                          value={projectDescription}
-                          onChange={(e) => setProjectDescription(e.target.value)}
-                          className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                          placeholder="E.g., I'm building a birdhouse and need a drill for the afternoon."
-                        />
-                      </div>
-                      
-                      <div className="flex items-start">
-                        <div className="flex items-center h-5">
-                          <input
-                            id="agree"
-                            type="checkbox"
-                            required
-                            checked={agreed}
-                            onChange={(e) => setAgreed(e.target.checked)}
-                            className="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded"
-                          />
-                        </div>
-                        <div className="ml-3 text-sm">
-                          <label htmlFor="agree" className="font-medium text-gray-700">
-                            I agree to return this clean and on time.
-                          </label>
-                          <p className="text-gray-500 text-xs mt-1">Our community relies on trust. Please treat this item as if it were your own.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">What's your project?</label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={projectDescription}
+                    onChange={(e) => setProjectDescription(e.target.value)}
+                    className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary p-2 border"
+                    placeholder="E.g., I'm building a birdhouse and need a drill for the afternoon."
+                  />
                 </div>
                 
-                <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
-                  <button
-                    type="submit"
-                    disabled={!agreed || !projectDescription || requesting}
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
-                  >
-                    {requesting ? 'Sending...' : 'Send Request'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  >
-                    Cancel
-                  </button>
+                <div className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="agree"
+                      type="checkbox"
+                      required
+                      checked={agreed}
+                      onChange={(e) => setAgreed(e.target.checked)}
+                      className="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded"
+                    />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label htmlFor="agree" className="font-medium text-gray-700">
+                      I agree to return this clean and on time.
+                    </label>
+                    <p className="text-gray-500 text-xs mt-1">Our community relies on trust. Please treat this item as if it were your own.</p>
+                  </div>
                 </div>
-              </form>
-            </div>
+              </div>
+              
+              <div className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="w-full sm:w-auto px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 font-medium text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!agreed || !projectDescription || requesting}
+                  className="w-full sm:w-auto px-4 py-2 bg-primary text-white border border-transparent rounded-md shadow-sm hover:bg-primary-hover font-medium text-sm disabled:opacity-50"
+                >
+                  {requesting ? 'Sending...' : 'Send Request'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
