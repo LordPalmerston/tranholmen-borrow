@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../lib/firebase';
+import { db } from '../lib/firebase';
 import { Camera, Upload, Star, CheckCircle } from 'lucide-react';
 
 export const ReturnFlow = () => {
@@ -27,17 +26,30 @@ export const ReturnFlow = () => {
     setUploading(true);
     
     try {
-      // Upload photo
-      const storageRef = ref(storage, `returns/${id}/${file.name}`);
-      await uploadBytes(storageRef, file);
-      const photoUrl = await getDownloadURL(storageRef);
+      // 1. Upload photo to Cloudinary
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+      
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
 
-      // Get transaction to update item status too
+      if (!response.ok) {
+        throw new Error('Failed to upload image to Cloudinary');
+      }
+
+      const uploadData = await response.json();
+      const photoUrl = uploadData.secure_url;
+
+      // 2. Get transaction to update item status too
       const txDoc = await getDoc(doc(db, 'transactions', id));
       if (txDoc.exists()) {
         const itemId = txDoc.data().item_id;
         
-        // Update transaction
+        // Update transaction in Firestore
         await updateDoc(doc(db, 'transactions', id), {
           status: 'completed',
           return_condition_photo_url: photoUrl,
@@ -53,6 +65,7 @@ export const ReturnFlow = () => {
       }
     } catch (error) {
       console.error("Error processing return:", error);
+      alert("Something went wrong uploading the photo. Please check your Cloudinary configuration.");
     } finally {
       setUploading(false);
     }

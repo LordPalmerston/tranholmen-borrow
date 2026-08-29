@@ -15,7 +15,7 @@ It is configured for automatic deployment via Netlify.
 
 ## 2. Environment Variables
 
-Create a `.env` file in the root of the project (based on `.env.example`) and fill in your Firebase config:
+Create a `.env` file in the root of the project (based on `.env.example`) and fill in your Firebase and Cloudinary config:
 
 ```env
 VITE_FIREBASE_API_KEY=your_api_key
@@ -24,11 +24,26 @@ VITE_FIREBASE_PROJECT_ID=your_project_id
 VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
+
+# Cloudinary (Free Image Storage)
+VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
+VITE_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 ```
 
-*Note: You will also need to add these environment variables in your Netlify site settings.*
+*Note: You will also need to add all of these environment variables in your Netlify site settings.*
 
-## 3. Netlify Deployment
+## 3. Cloudinary Setup (For Free Image Hosting)
+
+To keep the app 100% free without needing a credit card for Firebase Storage, we use Cloudinary.
+1. Sign up for a free account at [Cloudinary](https://cloudinary.com/).
+2. On your dashboard, find your **Cloud Name** and add it to `VITE_CLOUDINARY_CLOUD_NAME`.
+3. Go to **Settings** -> **Upload** -> scroll down to **Upload presets**.
+4. Click **Add upload preset**.
+5. Set the **Signing Mode** to **Unsigned**.
+6. Copy the preset name (e.g., `ml_default`) and add it to `VITE_CLOUDINARY_UPLOAD_PRESET`.
+7. Click Save.
+
+## 4. Netlify Deployment
 
 1. Create a new empty repository on your GitHub account.
 2. Push this local repository to your GitHub:
@@ -44,11 +59,11 @@ VITE_FIREBASE_APP_ID=your_app_id
 7. **Important:** Before clicking Deploy, go to Advanced Build Settings and add your Firebase Environment Variables (from step 2) so the production build can connect to your database.
 8. Click **Deploy Site**.
 
-## 4. Cloud Functions
+## 5. Cloud Functions (Optional, Requires Credit Card)
 
-To deploy the 24-hour return reminder cron job:
+If you *do* want to use the 24-hour return reminder cron job in the future:
 
-1. You must be on the Blaze (Pay-as-you-go) plan to use Firebase Functions.
+1. You must upgrade Firebase to the Blaze (Pay-as-you-go) plan.
 2. Run `npm install -g firebase-tools`
 3. Login via `firebase login`
 4. Run `firebase use --add` and select your project.
