@@ -46,7 +46,10 @@ export const AddItem = () => {
           body: formData,
         });
 
-        if (!response.ok) throw new Error('Failed to upload image');
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err?.error?.message || 'Failed to upload image');
+        }
         const uploadData = await response.json();
         photoUrl = uploadData.secure_url;
       }
@@ -64,9 +67,9 @@ export const AddItem = () => {
       });
 
       navigate('/catalog');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding item:", error);
-      alert("Something went wrong while adding the tool.");
+      alert(`Error: ${error.message}`);
     } finally {
       setUploading(false);
     }

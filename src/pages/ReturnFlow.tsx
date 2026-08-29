@@ -38,7 +38,8 @@ export const ReturnFlow = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to upload image to Cloudinary');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData?.error?.message || 'Failed to upload image to Cloudinary');
       }
 
       const uploadData = await response.json();
@@ -63,9 +64,9 @@ export const ReturnFlow = () => {
         
         setCompleted(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error processing return:", error);
-      alert("Something went wrong uploading the photo. Please check your Cloudinary configuration.");
+      alert(`Upload failed: ${error.message || 'Please check your Cloudinary configuration.'}`);
     } finally {
       setUploading(false);
     }
