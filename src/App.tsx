@@ -13,6 +13,7 @@ import { ReturnFlow } from './pages/ReturnFlow';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { AddItem } from './pages/AddItem';
+import { EditItem } from './pages/EditItem';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -36,6 +37,7 @@ function App() {
             <Route path="/catalog" element={<Catalog />} />
             <Route path="/item/:id" element={<ItemDetail />} />
             <Route path="/add-item" element={<AddItem />} />
+            <Route path="/edit-item/:id" element={<EditItem />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/return/:id" element={<ReturnFlow />} />
             <Route path="/profile" element={<Profile />} />
