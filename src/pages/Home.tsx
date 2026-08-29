@@ -57,6 +57,13 @@ export const Home = () => {
     fetchActiveLoans();
   }, [currentUser]);
 
+  const hasUnread = (tx: any) => {
+    if (!tx.last_message_at) return false;
+    const readField = tx.role === 'owner' ? tx.last_read_owner : tx.last_read_borrower;
+    if (!readField) return true;
+    return tx.last_message_at.toMillis() > readField.toMillis();
+  };
+
   return (
     <div className="flex flex-col space-y-6 pt-4 pb-8">
       {/* Active Widgets */}
@@ -65,7 +72,7 @@ export const Home = () => {
           <h2 className="font-bold text-gray-900 text-lg">Action Required</h2>
           {activeLoans.map(tx => (
             <div key={tx.id} className="bg-white p-4 rounded-xl shadow-sm border border-orange-100 flex items-center justify-between">
-              <div>
+              <div className="min-w-0 pr-2">
                 <p className="text-sm font-semibold text-gray-900 truncate">
                   {tx.role === 'owner' 
                     ? (tx.status === 'pending' ? `Request for ${tx.item?.title || 'Item'}` : `Lending ${tx.item?.title || 'Item'}`)
@@ -76,9 +83,12 @@ export const Home = () => {
               <div className="flex space-x-2 shrink-0">
                 <button 
                   onClick={() => navigate(`/chat/${tx.id}`)}
-                  className="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100"
+                  className="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 relative"
                 >
                   <MessageCircle size={18} />
+                  {hasUnread(tx) && (
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+                  )}
                 </button>
                 <button 
                   onClick={() => navigate('/dashboard')}

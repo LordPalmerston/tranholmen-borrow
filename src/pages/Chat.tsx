@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft, Send } from 'lucide-react';
@@ -56,6 +56,28 @@ export const Chat = () => {
     return () => unsubscribe();
   }, [id]);
 
+  // Mark as read when messages change or chat is opened
+  useEffect(() => {
+    const markAsRead = async () => {
+      if (!id || !currentUser || !txDetails) return;
+      
+      const isOwner = txDetails.owner_id === currentUser.uid;
+      const field = isOwner ? 'last_read_owner' : 'last_read_borrower';
+      
+      try {
+        await updateDoc(doc(db, 'transactions', id), {
+          [field]: serverTimestamp()
+        });
+      } catch (error) {
+        console.error("Error marking as read:", error);
+      }
+    };
+    
+    if (messages.length > 0) {
+      markAsRead();
+    }
+  }, [messages, id, currentUser, txDetails]);
+
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -73,6 +95,11 @@ export const Chat = () => {
         text: msgText,
         sender_id: currentUser.uid,
         created_at: serverTimestamp()
+      });
+      
+      // Update the transaction to trigger unread indicators
+      await updateDoc(doc(db, 'transactions', id), {
+        last_message_at: serverTimestamp()
       });
     } catch (error) {
       console.error("Error sending message:", error);

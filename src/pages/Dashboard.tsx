@@ -59,6 +59,13 @@ export const Dashboard = () => {
     fetchTransactions();
   }, [activeTab, currentUser]);
 
+  const hasUnread = (tx: any) => {
+    if (!tx.last_message_at) return false;
+    const readField = activeTab === 'lending' ? tx.last_read_owner : tx.last_read_borrower;
+    if (!readField) return true;
+    return tx.last_message_at.toMillis() > readField.toMillis();
+  };
+
   const handleApprove = async (transactionId: string, itemId: string) => {
     try {
       await updateDoc(doc(db, 'transactions', transactionId), {
@@ -140,9 +147,12 @@ export const Dashboard = () => {
                 <div className="mt-4 flex gap-2">
                   <button
                     onClick={() => navigate(`/chat/${tx.id}`)}
-                    className="flex items-center justify-center w-full bg-blue-50 text-blue-700 py-2 rounded-md font-medium text-sm hover:bg-blue-100 transition-colors"
+                    className="relative flex items-center justify-center w-full bg-blue-50 text-blue-700 py-2 rounded-md font-medium text-sm hover:bg-blue-100 transition-colors"
                   >
                     <MessageCircle size={16} className="mr-1" /> Message
+                    {hasUnread(tx) && (
+                      <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+                    )}
                   </button>
                   <button 
                     onClick={() => handleApprove(tx.id, tx.item_id)}
