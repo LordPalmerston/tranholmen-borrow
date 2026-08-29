@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Search, PlusCircle, ShieldCheck } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+
 
 export const Home = () => {
   return (
