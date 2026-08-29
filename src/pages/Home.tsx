@@ -1,11 +1,8 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Search, PlusCircle, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Home = () => {
-  const { userProfile } = useAuth();
-
   return (
     <div className="flex flex-col space-y-6 pt-4 pb-8">
       {/* Hero Section */}

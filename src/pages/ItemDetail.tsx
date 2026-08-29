@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { Calendar, MapPin, ShieldCheck, ArrowLeft, Info } from 'lucide-react';
+import { MapPin, ArrowLeft, Info } from 'lucide-react';
 
 export const ItemDetail = () => {
   const { id } = useParams();

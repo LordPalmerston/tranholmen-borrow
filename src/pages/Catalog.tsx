@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Link } from 'react-router-dom';
-import { Search, Filter } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 interface Item {
   id: string;

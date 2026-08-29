@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { LogOut, Star, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
