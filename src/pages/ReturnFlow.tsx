@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Camera, Upload, Star, CheckCircle } from 'lucide-react';
+import { Camera, Upload, CheckCircle } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 
 export const ReturnFlow = () => {
@@ -11,7 +11,6 @@ export const ReturnFlow = () => {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [rating, setRating] = useState(0);
   const [completed, setCompleted] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,7 +62,6 @@ export const ReturnFlow = () => {
         await updateDoc(doc(db, 'transactions', id), {
           status: 'completed',
           return_photo_url: uploadData.secure_url,
-          rating: rating,
           returned_at: new Date()
         });
         
@@ -108,7 +106,17 @@ export const ReturnFlow = () => {
           Take a quick photo of the item back on the owner's porch to verify its return condition.
         </p>
 
-        {!preview ? (
+        {preview ? (
+          <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200">
+            <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+            <button 
+              onClick={() => { setFile(null); setPreview(null); }}
+              className="absolute top-2 right-2 bg-gray-900/70 text-white rounded-full p-2 text-xs"
+            >
+              Retake
+            </button>
+          </div>
+        ) : (
           <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
             <div className="flex flex-col items-center justify-center pt-5 pb-6">
               <Camera className="w-10 h-10 text-gray-400 mb-3" />
@@ -122,39 +130,12 @@ export const ReturnFlow = () => {
               onChange={handleFileChange}
             />
           </label>
-        ) : (
-          <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200">
-            <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-            <button 
-              onClick={() => { setFile(null); setPreview(null); }}
-              className="absolute top-2 right-2 bg-gray-900/70 text-white rounded-full p-2 text-xs"
-            >
-              Retake
-            </button>
-          </div>
         )}
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6">
-        <h3 className="font-semibold mb-2">2. Rate your experience</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          How was your experience borrowing from your neighbor?
-        </p>
-        <div className="flex justify-center space-x-2">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button key={star} onClick={() => setRating(star)}>
-              <Star 
-                size={32} 
-                className={rating >= star ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} 
-              />
-            </button>
-          ))}
-        </div>
       </div>
 
       <button
         onClick={handleReturn}
-        disabled={!file || rating === 0 || uploading}
+        disabled={!file || uploading}
         className="w-full bg-primary hover:bg-primary-hover disabled:bg-gray-300 text-white font-bold py-4 px-4 rounded-xl shadow-sm transition-colors flex justify-center items-center"
       >
         {uploading ? 'Processing...' : (
