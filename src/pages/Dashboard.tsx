@@ -39,6 +39,10 @@ export const Dashboard = () => {
       
       querySnapshot.forEach((d) => {
         const data = d.data();
+        // Hide if the current user soft-deleted it
+        if (activeTab === 'lending' && data.hidden_by_owner) return;
+        if (activeTab === 'borrowing' && data.hidden_by_borrower) return;
+        
         fetched.push({ id: d.id, ...data });
         if (activeTab === 'borrowing' && (data.status === 'approved' || data.status === 'active')) {
           ownersToFetch.add(data.owner_id);
@@ -114,25 +118,40 @@ export const Dashboard = () => {
     }
   };
 
-  const handleDeleteTransaction = async (txId: string, itemId: string, status: string) => {
-    if (status === 'active') {
+  const handleDeleteTransaction = async (tx: any) => {
+    if (tx.status === 'active') {
       alert("You cannot delete an active loan. The item must be returned first.");
       return;
     }
-    if (!window.confirm("Are you sure you want to delete this transaction? This action cannot be undone.")) return;
+    if (!window.confirm("Are you sure you want to remove this transaction from your dashboard?")) return;
     
     try {
-      await deleteDoc(doc(db, 'transactions', txId));
-      
-      // If the transaction was locking the item, reset the item to available
-      if (status === 'approved' || status === 'active') {
-        await updateDoc(doc(db, 'items', itemId), { status: 'available' });
+      if (tx.status === 'completed') {
+        // Soft delete: hide it from the user's dashboard history but keep the log
+        const isOwner = currentUser?.uid === tx.owner_id;
+        if (isOwner) {
+          await updateDoc(doc(db, 'transactions', tx.id), { hidden_by_owner: true });
+        } else {
+          await updateDoc(doc(db, 'transactions', tx.id), { hidden_by_borrower: true });
+        }
+      } else {
+        // Cancel the ongoing transaction (keeps the record in the database with status 'cancelled')
+        // We hide it for the person who cancelled it, so it disappears from their dashboard.
+        const isOwner = currentUser?.uid === tx.owner_id;
+        await updateDoc(doc(db, 'transactions', tx.id), { 
+          status: 'cancelled',
+          hidden_by_owner: isOwner ? true : false,
+          hidden_by_borrower: !isOwner ? true : false
+        });
+        
+        // Reset item to available
+        await updateDoc(doc(db, 'items', tx.item_id), { status: 'available' });
       }
       
       fetchTransactions();
     } catch (error) {
       console.error("Error deleting transaction:", error);
-      alert("Failed to delete the transaction. Ensure you have the right permissions.");
+      alert("Failed to remove the transaction.");
     }
   };
 
@@ -179,15 +198,16 @@ export const Dashboard = () => {
                     tx.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                     tx.status === 'approved' ? 'bg-blue-100 text-blue-800' :
                     tx.status === 'active' ? 'bg-green-100 text-green-800' :
+                    tx.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                     'bg-gray-100 text-gray-800'
                   }`}>
                     {tx.status}
                   </span>
                   {tx.status !== 'active' && (
                     <button 
-                      onClick={() => handleDeleteTransaction(tx.id, tx.item_id, tx.status)} 
+                      onClick={() => handleDeleteTransaction(tx)} 
                       className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
-                      aria-label="Delete transaction"
+                      aria-label="Remove transaction"
                     >
                       <Trash2 size={16} />
                     </button>
