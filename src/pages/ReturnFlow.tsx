@@ -59,11 +59,12 @@ export const ReturnFlow = () => {
       if (txDoc.exists()) {
         const itemId = txDoc.data().item_id;
         
-        // Update transaction in Firestore
+        // 3. Mark transaction as completed and save return details
         await updateDoc(doc(db, 'transactions', id), {
           status: 'completed',
-          return_condition_photo_url: photoUrl,
-          rating: rating
+          return_photo_url: uploadData.secure_url,
+          rating: rating,
+          returned_at: new Date()
         });
         
         // Update item back to available

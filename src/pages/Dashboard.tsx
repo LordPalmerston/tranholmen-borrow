@@ -66,6 +66,12 @@ export const Dashboard = () => {
     return tx.last_message_at.toMillis() > readField.toMillis();
   };
 
+  const formatDate = (ts: any) => {
+    if (!ts) return null;
+    const date = ts.toDate ? ts.toDate() : new Date(ts);
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
   const handleApprove = async (transactionId: string, itemId: string) => {
     try {
       await updateDoc(doc(db, 'transactions', transactionId), {
@@ -85,8 +91,9 @@ export const Dashboard = () => {
     try {
       await updateDoc(doc(db, 'transactions', transactionId), {
         status: 'active',
+        picked_up_at: new Date(),
         // Assuming a standard 2-day borrow period for MVP
-        end_time: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+        expected_end_time: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
       });
       fetchTransactions();
     } catch (error) {
@@ -141,6 +148,27 @@ export const Dashboard = () => {
               <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                 <span className="font-medium text-gray-900">Project:</span> {tx.project_description}
               </p>
+
+              <div className="bg-gray-50 rounded-md p-3 mb-4 text-xs text-gray-600 space-y-1">
+                {tx.created_at && <div className="flex justify-between"><span>Requested:</span> <span className="font-medium text-gray-900">{formatDate(tx.created_at)}</span></div>}
+                {tx.start_time && <div className="flex justify-between"><span>Approved:</span> <span className="font-medium text-gray-900">{formatDate(tx.start_time)}</span></div>}
+                {tx.picked_up_at && <div className="flex justify-between"><span>Picked Up:</span> <span className="font-medium text-gray-900">{formatDate(tx.picked_up_at)}</span></div>}
+                {tx.returned_at && <div className="flex justify-between"><span>Returned:</span> <span className="font-medium text-gray-900">{formatDate(tx.returned_at)}</span></div>}
+              </div>
+
+              {tx.return_photo_url && (
+                <div className="mb-4">
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Return Condition</span>
+                  <img src={tx.return_photo_url} alt="Return Condition" className="w-full h-48 object-cover rounded-md border border-gray-200" />
+                  {tx.rating > 0 && (
+                    <div className="mt-2 flex items-center gap-1 text-yellow-500">
+                      {[...Array(tx.rating)].map((_, i) => (
+                        <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* LENDING VIEW */}
               {activeTab === 'lending' && tx.status === 'pending' && (

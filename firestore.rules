@@ -38,7 +38,7 @@ service cloud.firestore {
     match /items/{itemId} {
       allow read: if isApproved();
       allow create: if isApproved() && request.resource.data.owner_id == request.auth.uid;
-      allow update: if isApproved() && resource.data.owner_id == request.auth.uid;
+      allow update: if isApproved();
       allow delete: if isApproved() && resource.data.owner_id == request.auth.uid;
     }
 
