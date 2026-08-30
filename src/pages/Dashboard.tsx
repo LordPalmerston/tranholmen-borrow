@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, getDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { Check, MapPin, Camera, Clock, MessageCircle } from 'lucide-react';
+import { Check, MapPin, Camera, Clock, MessageCircle, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const Dashboard = () => {
@@ -101,6 +101,24 @@ export const Dashboard = () => {
     }
   };
 
+  const handleDeleteTransaction = async (txId: string, itemId: string, status: string) => {
+    if (!window.confirm("Are you sure you want to delete this transaction? This action cannot be undone.")) return;
+    
+    try {
+      await deleteDoc(doc(db, 'transactions', txId));
+      
+      // If the transaction was locking the item, reset the item to available
+      if (status === 'approved' || status === 'active') {
+        await updateDoc(doc(db, 'items', itemId), { status: 'available' });
+      }
+      
+      fetchTransactions();
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      alert("Failed to delete the transaction. Ensure you have the right permissions.");
+    }
+  };
+
   return (
     <div className="pb-8">
       {/* Tabs */}
@@ -135,14 +153,23 @@ export const Dashboard = () => {
             <div key={tx.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="font-bold text-gray-900">{tx.item_title}</h3>
-                <span className={`px-2 py-1 rounded text-xs font-semibold capitalize ${
-                  tx.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                  tx.status === 'approved' ? 'bg-blue-100 text-blue-800' :
-                  tx.status === 'active' ? 'bg-green-100 text-green-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  {tx.status}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-1 rounded text-xs font-semibold capitalize ${
+                    tx.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                    tx.status === 'approved' ? 'bg-blue-100 text-blue-800' :
+                    tx.status === 'active' ? 'bg-green-100 text-green-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {tx.status}
+                  </span>
+                  <button 
+                    onClick={() => handleDeleteTransaction(tx.id, tx.item_id, tx.status)} 
+                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                    aria-label="Delete transaction"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
               
               <p className="text-sm text-gray-600 mb-3 line-clamp-2">
