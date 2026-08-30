@@ -102,6 +102,10 @@ export const Dashboard = () => {
   };
 
   const handleDeleteTransaction = async (txId: string, itemId: string, status: string) => {
+    if (status === 'active') {
+      alert("You cannot delete an active loan. The item must be returned first.");
+      return;
+    }
     if (!window.confirm("Are you sure you want to delete this transaction? This action cannot be undone.")) return;
     
     try {
@@ -162,13 +166,15 @@ export const Dashboard = () => {
                   }`}>
                     {tx.status}
                   </span>
-                  <button 
-                    onClick={() => handleDeleteTransaction(tx.id, tx.item_id, tx.status)} 
-                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
-                    aria-label="Delete transaction"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {tx.status !== 'active' && (
+                    <button 
+                      onClick={() => handleDeleteTransaction(tx.id, tx.item_id, tx.status)} 
+                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                      aria-label="Delete transaction"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
               </div>
               
