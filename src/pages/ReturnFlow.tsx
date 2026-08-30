@@ -51,7 +51,6 @@ export const ReturnFlow = () => {
       }
 
       const uploadData = await response.json();
-      const photoUrl = uploadData.secure_url;
 
       // 2. Get transaction to update item status too
       const txDoc = await getDoc(doc(db, 'transactions', id));

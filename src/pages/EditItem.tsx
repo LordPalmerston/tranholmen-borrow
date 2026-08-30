@@ -64,7 +64,6 @@ export const EditItem = () => {
     setUploading(true);
     try {
       let photoUrl = preview; // keep existing if no new file
-      let finalPhotoUrl = photoUrl;
       
       // Upload new image if provided
       if (file) {

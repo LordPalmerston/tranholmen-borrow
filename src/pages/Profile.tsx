@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, Star, MapPin, Edit, Trash2 } from 'lucide-react';
+import { LogOut, MapPin, Edit, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -70,11 +70,6 @@ export const Profile = () => {
           <div className="flex items-center mt-2 text-sm text-gray-600">
             <MapPin size={16} className="mr-1 text-gray-400" />
             {userProfile.street_address}
-          </div>
-          
-          <div className="flex items-center mt-2 text-sm font-medium text-yellow-600 bg-yellow-50 w-fit px-2 py-1 rounded">
-            <Star size={14} className="mr-1 fill-current" />
-            {userProfile.trust_score.toFixed(1)} Trust Score
           </div>
         </div>
       </div>
