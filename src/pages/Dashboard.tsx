@@ -3,12 +3,25 @@ import { collection, query, where, getDocs, updateDoc, doc, getDoc, deleteDoc } 
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { Check, MapPin, Camera, Clock, MessageCircle, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const Dashboard = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'borrowing' | 'lending'>('borrowing');
+  const location = useLocation();
+  
+  const searchParams = new URLSearchParams(location.search);
+  const initialTab = searchParams.get('tab') === 'lending' ? 'lending' : 'borrowing';
+  
+  const [activeTab, setActiveTab] = useState<'borrowing' | 'lending'>(initialTab);
+  
+  useEffect(() => {
+    const currentTab = searchParams.get('tab') === 'lending' ? 'lending' : 'borrowing';
+    if (activeTab !== currentTab) {
+      setActiveTab(currentTab);
+    }
+  }, [location.search]);
+
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [ownerAddresses, setOwnerAddresses] = useState<Record<string, string>>({});
@@ -127,22 +140,26 @@ export const Dashboard = () => {
     <div className="pb-8">
       {/* Tabs */}
       <div className="flex border-b border-gray-200 mb-4 sticky top-[60px] bg-gray-50 z-10 pt-2">
-        <button
-          className={`flex-1 py-3 text-center text-sm font-medium border-b-2 ${
-            activeTab === 'borrowing' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => setActiveTab('borrowing')}
-        >
-          Borrowing
-        </button>
-        <button
-          className={`flex-1 py-3 text-center text-sm font-medium border-b-2 ${
-            activeTab === 'lending' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => setActiveTab('lending')}
-        >
-          Lending
-        </button>
+            <button
+              className={`flex-1 py-4 text-center font-medium text-sm transition-colors ${
+                activeTab === 'borrowing' 
+                  ? 'border-b-2 border-primary text-primary' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+              onClick={() => navigate('/dashboard?tab=borrowing')}
+            >
+              Borrowing
+            </button>
+            <button
+              className={`flex-1 py-4 text-center font-medium text-sm transition-colors ${
+                activeTab === 'lending' 
+                  ? 'border-b-2 border-primary text-primary' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+              onClick={() => navigate('/dashboard?tab=lending')}
+            >
+              Lending
+            </button>
       </div>
 
       {loading ? (

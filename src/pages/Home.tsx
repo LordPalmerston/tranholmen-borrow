@@ -90,12 +90,12 @@ export const Home = () => {
                     <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
                   )}
                 </button>
-                <button 
-                  onClick={() => navigate('/dashboard')}
+                <Link 
+                  to={`/dashboard?tab=${tx.role === 'owner' ? 'lending' : 'borrowing'}`}
                   className="p-2 bg-gray-50 text-gray-600 rounded-full hover:bg-gray-100"
                 >
                   <ArrowRight size={18} />
-                </button>
+                </Link>
               </div>
             </div>
           ))}
