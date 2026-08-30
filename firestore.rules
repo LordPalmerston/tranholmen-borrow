@@ -14,7 +14,7 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.is_admin == true;
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('is_admin', false) == true;
     }
     
     // Check if the current user is part of an approved transaction with the target user

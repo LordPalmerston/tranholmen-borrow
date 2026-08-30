@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, PlusCircle, ShieldCheck, ArrowRight, MessageCircle } from 'lucide-react';
+import { Search, PlusCircle, ShieldCheck, ArrowRight, MessageCircle, ShieldAlert } from 'lucide-react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Home = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, userProfile } = useAuth();
   const navigate = useNavigate();
   const [activeLoans, setActiveLoans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,6 +100,23 @@ export const Home = () => {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Admin Button */}
+      {userProfile?.is_admin && (
+        <Link 
+          to="/admin" 
+          className="bg-gray-900 text-white p-4 rounded-xl flex justify-between items-center shadow-sm hover:bg-gray-800 transition-colors"
+        >
+          <div className="flex items-center">
+            <ShieldAlert size={24} className="mr-3 text-red-400" />
+            <div>
+              <h3 className="font-bold text-sm">Admin Ledger</h3>
+              <p className="text-xs text-gray-400">View all neighborhood transactions</p>
+            </div>
+          </div>
+          <ArrowRight size={20} className="text-gray-500" />
+        </Link>
       )}
 
       {/* Hero Section */}
