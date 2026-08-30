@@ -15,6 +15,7 @@ import { Profile } from './pages/Profile';
 import { AddItem } from './pages/AddItem';
 import { EditItem } from './pages/EditItem';
 import { Chat } from './pages/Chat';
+import { AdminLedger } from './pages/AdminLedger';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -43,6 +44,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/return/:id" element={<ReturnFlow />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/admin" element={<AdminLedger />} />
           </Route>
         </Routes>
       </BrowserRouter>

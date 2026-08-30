@@ -12,6 +12,7 @@ interface UserProfile {
   street_address?: string;
   trust_score: number;
   is_approved: boolean;
+  is_admin?: boolean;
 }
 
 interface AuthContextType {

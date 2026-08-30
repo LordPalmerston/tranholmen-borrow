@@ -13,6 +13,10 @@ service cloud.firestore {
       return isAuthenticated(); 
     }
     
+    function isAdmin() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.is_admin == true;
+    }
+    
     // Check if the current user is part of an approved transaction with the target user
     function isApprovedBorrowerOrLender(targetUserId) {
       let asBorrower = exists(/databases/$(database)/documents/transactions/$(request.auth.uid + "_" + targetUserId));
@@ -43,10 +47,10 @@ service cloud.firestore {
     }
 
     match /transactions/{transactionId} {
-      allow read: if isApproved() && (resource.data.borrower_id == request.auth.uid || resource.data.owner_id == request.auth.uid);
+      allow read: if isApproved() && (resource.data.borrower_id == request.auth.uid || resource.data.owner_id == request.auth.uid || isAdmin());
       allow create: if isApproved() && request.resource.data.borrower_id == request.auth.uid;
-      allow update: if isApproved() && (resource.data.borrower_id == request.auth.uid || resource.data.owner_id == request.auth.uid);
-      allow delete: if isApproved() && (resource.data.borrower_id == request.auth.uid || resource.data.owner_id == request.auth.uid);
+      allow update: if isApproved() && (resource.data.borrower_id == request.auth.uid || resource.data.owner_id == request.auth.uid || isAdmin());
+      allow delete: if isApproved() && (resource.data.borrower_id == request.auth.uid || resource.data.owner_id == request.auth.uid || isAdmin());
       
       match /messages/{messageId} {
         allow read, create: if isApproved() && (
