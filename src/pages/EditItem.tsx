@@ -4,6 +4,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { Camera, Save, ArrowLeft } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 
 export const EditItem = () => {
   const { id } = useParams();
@@ -63,11 +64,20 @@ export const EditItem = () => {
     setUploading(true);
     try {
       let photoUrl = preview; // keep existing if no new file
+      let finalPhotoUrl = photoUrl;
       
-      // Upload to Cloudinary if new image selected
+      // Upload new image if provided
       if (file) {
+        // Compress photo before uploading
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true
+        };
+        const compressedFile = await imageCompression(file, options);
+
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', compressedFile);
         formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
         const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
         

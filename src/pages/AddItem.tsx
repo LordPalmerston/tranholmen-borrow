@@ -4,6 +4,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { Camera, Plus, ArrowLeft } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 
 export const AddItem = () => {
   const { currentUser, userProfile } = useAuth();
@@ -36,8 +37,16 @@ export const AddItem = () => {
       
       // Upload to Cloudinary if image exists
       if (file) {
+        // Compress photo before uploading
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true
+        };
+        const compressedFile = await imageCompression(file, options);
+
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', compressedFile);
         formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
         const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
         

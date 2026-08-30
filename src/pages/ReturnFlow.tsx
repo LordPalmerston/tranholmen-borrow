@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Camera, Upload, Star, CheckCircle } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 
 export const ReturnFlow = () => {
   const { id } = useParams(); // Transaction ID
@@ -26,9 +27,17 @@ export const ReturnFlow = () => {
     setUploading(true);
     
     try {
-      // 1. Upload photo to Cloudinary
+      // 1. Compress photo
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true
+      };
+      const compressedFile = await imageCompression(file, options);
+
+      // 2. Upload photo to Cloudinary
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', compressedFile);
       formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
       
       const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
